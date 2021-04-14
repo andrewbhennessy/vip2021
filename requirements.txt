@@ -1,3 +1,4 @@
 serial==0.0.97
 numpy==1.20.1
 filterpy==1.4.5
+adafruit-circuitpython-ssd1306==2.11.2
