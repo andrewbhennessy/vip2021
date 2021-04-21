@@ -20,14 +20,17 @@ def engage_radar():
       # process uncertainty
     #TODO:Figure out which serial port py uses
     ser = serial.Serial(
-        port='COM3',
+        port='/dev/ttyUSB0',
         baudrate=115200,
         stopbits=serial.STOPBITS_ONE,
         bytesize=serial.EIGHTBITS,
         parity=serial.PARITY_NONE
     )
 
-    ser.isOpen()
+    if ser.isOpen() == True:
+        print("port open")
+    else:
+        print("port closed")
 
     times = []
     currentTime = int(np.round(time.time() % 60))

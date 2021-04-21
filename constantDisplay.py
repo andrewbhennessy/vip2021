@@ -31,7 +31,7 @@ def engage_radar():
     top = padding
     bottom = height - padding
     # Move left to right keeping track of the current x position for drawing shapes.
-    x = 0
+    dispCursor = 0
 
     font = ImageFont.load_default()
 
@@ -50,19 +50,19 @@ def engage_radar():
       # process uncertainty
     #TODO:Figure out which serial port py uses
     ser = serial.Serial(
-        port='COM3',
+        port='/dev/ttyUSB0',
         baudrate=115200,
         stopbits=serial.STOPBITS_ONE,
         bytesize=serial.EIGHTBITS,
         parity=serial.PARITY_NONE
     )
-
     ser.isOpen()
-
+    draw.text((dispCursor, top + 0), "ENGAGING RADAR STANDBY...", font=font, fill=255)
+    disp.image(image)
+    disp.show()
     times = []
     currentTime = int(np.round(time.time() % 60))
     while 1:
-        draw.rectangle((0, 0, width, height), outline=0, fill=0)
         while ser.inWaiting() >= 14:
             for elem in range(13):
                 #try:
@@ -81,8 +81,10 @@ def engage_radar():
                     my_filter.Q = Q_discrete_white_noise(2, dt, .1)
                     # do something with the output
                     x = my_filter.x
-                    print(x[0][0])
-                    draw.text((x, top + 0), "Distance(cm): " + x[0][0], font=font, fill=255)
+                    #print(x[0][0])
+                    text = "Distance(cm): {}".format(str(np.round(x[0][0],2)))
+                    draw.rectangle((0,0,width,height),outline=0,fill=0)
+                    draw.text((dispCursor, top + 0), text, font=font, fill=255)
                     disp.image(image)
                     disp.show()
 
