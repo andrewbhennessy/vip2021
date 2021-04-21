@@ -57,42 +57,37 @@ def engage_radar():
         parity=serial.PARITY_NONE
     )
     ser.isOpen()
-    draw.text((dispCursor, top + 0), "ENGAGING RADAR STANDBY...", font=font, fill=255)
+    draw.text((dispCursor, top + 0), "ENGAGING", font=font, fill=255)
+    draw.text((dispCursor, top + 8), "RADAR", font=font, fill=255)
+    draw.text((dispCursor, top + 16), "PLEASE", font=font, fill=255)
+    draw.text((dispCursor, top + 32), "STANDBY....", font=font, fill=255)
     disp.image(image)
     disp.show()
     times = []
     currentTime = int(np.round(time.time() % 60))
     while 1:
         while ser.inWaiting() >= 14:
-            for elem in range(13):
-                #try:
-                f = str(ser.read(14).hex()).strip("f")[6:].lstrip("0")
-                if f == "00" or f == "":
-                    pass
+            f = str(ser.read(14).hex()).strip("f")[6:].lstrip("0")
+            if f == "00" or f == "":
+                pass
+            else:
+                my_filter.predict()
+                my_filter.update(int(f.upper(), 16))
+                times.append(np.round(time.time()%60,2)-currentTime)
+                if len(times) == 0 or len(times) == 1:
+                    dt = 0.1
                 else:
-                    my_filter.predict()
-                    my_filter.update(int(f.upper(), 16))
-                    times.append(np.round(time.time()%60,2)-currentTime)
-                    if len(times) == 0 or len(times) == 1:
-                        dt = 0.1
-                    else:
-                        times = times[-2:len(times)]
-                        dt = times[-1] - times[-2]
-                    my_filter.Q = Q_discrete_white_noise(2, dt, .1)
-                    # do something with the output
-                    x = my_filter.x
-                    #print(x[0][0])
-                    text = "Distance(cm): {}".format(str(np.round(x[0][0],2)))
-                    draw.rectangle((0,0,width,height),outline=0,fill=0)
-                    draw.text((dispCursor, top + 0), text, font=font, fill=255)
-                    disp.image(image)
-                    disp.show()
-
-
-
-    for i in range(len(times)):
-        print("{},{},{}".format(times[i], raw[i], filtered[i]))
-    return
+                    times = times[-2:len(times)]
+                    dt = times[-1] - times[-2]
+                my_filter.Q = Q_discrete_white_noise(2, dt, .1)
+                # do something with the output
+                x = my_filter.x
+                #print(x[0][0])
+                text = "Distance(cm): {}".format(str(np.round(x[0][0],2)))
+                draw.rectangle((0,0,width,height),outline=0,fill=0)
+                draw.text((dispCursor, top + 0), text, font=font, fill=255)
+                disp.image(image)
+                disp.show()
 
 if __name__ == '__main__':
     engage_radar()
